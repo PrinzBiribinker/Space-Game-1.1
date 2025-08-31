@@ -1,152 +1,132 @@
-// -------------------------------
-// engine.js (mit dynamischem Hintergrund)
-// -------------------------------
+const gameContainer = document.getElementById("game");
+const starsCanvas = document.getElementById("stars");
+const ctx = starsCanvas.getContext("2d");
 
-// Startzustand
-let currentScene = "portalraum";
-let activeStone = "hellgrau"; // Start: hellgrauer Stein
-let gameData = {};
-let inventory = {
-  stones: ["hellgrau", "lila"],
-  items: [],
-  books: []
-};
-let unlocked = {
-  inventory: false,
-  library: false
-};
+let currentBackground = "grey"; // Start mit grauem Stein
+let crystalsLoaded = false;
 
-// Spiel starten
-fetch("kapitel.json")
-  .then(res => res.json())
-  .then(data => {
-    gameData = data;
-    showScene("portalraum");
-  });
+// Resize Canvas
+function resizeCanvas() {
+  starsCanvas.width = window.innerWidth;
+  starsCanvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
-// Szene anzeigen
-function showScene(id) {
-  currentScene = id;
-  const scene = document.getElementById("scene");
-  const data = gameData[id];
-
-  // Hintergrund dynamisch setzen
-  setBackground(scene);
-
-  let html = `<h2>${data.title}</h2><p>${data.text}</p>`;
-
-  // Portalraum
-  if (id === "portalraum") {
-    let portalClass = "portal";
-    if (activeStone) portalClass += " " + activeStone;
-    html += `<div class="${portalClass}" onclick="enterPortal()"></div>`;
-    if (unlocked.inventory) {
-      html += `<p>Wähle einen Stein im Inventar, um das Portal zu aktivieren.</p>`;
-    }
-  }
-
-  // Choices
-  if (data.choices) {
-    data.choices.forEach(choice => {
-      html += `<button onclick="showScene('${choice.target}')">${choice.text}</button>`;
+// Sternenhimmel
+let stars = [];
+function createStars() {
+  stars = [];
+  for (let i = 0; i < 150; i++) {
+    stars.push({
+      x: Math.random() * starsCanvas.width,
+      y: Math.random() * starsCanvas.height,
+      radius: Math.random() * 1.5,
+      speed: Math.random() * 0.5 + 0.2
     });
   }
-
-  // Unlocks
-  if (data.unlock) {
-    if (data.unlock.inventory) unlocked.inventory = true;
-    if (data.unlock.library) unlocked.library = true;
-    updateUI();
-  }
-
-  scene.innerHTML = html;
 }
 
-// Portal betreten
-function enterPortal() {
-  if (!activeStone) {
-    alert("Wähle zuerst einen Stein aus dem Inventar!");
-    return;
-  }
-  if (activeStone === "hellgrau") showScene("kapitel1");
-  else if (activeStone === "lila") showScene("kristallhoehe");
-}
-
-// UI updaten
-function updateUI() {
-  const inv = document.getElementById("inventory");
-  const itemsDiv = document.getElementById("items");
-  if (unlocked.inventory) {
-    inv.classList.remove("hidden");
-    itemsDiv.innerHTML = "";
-    inventory.stones.forEach(stone => {
-      itemsDiv.innerHTML += `<div class="stone ${stone}" onclick="setActiveStone('${stone}')"></div>`;
+function drawStars() {
+  ctx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
+  if (currentBackground === "lilac") {
+    ctx.fillStyle = "white";
+    stars.forEach(star => {
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+      ctx.fill();
+      star.y += star.speed;
+      if (star.y > starsCanvas.height) star.y = 0;
     });
   }
+  requestAnimationFrame(drawStars);
+}
+createStars();
+drawStars();
 
-  const lib = document.getElementById("library");
-  const booksDiv = document.getElementById("books");
-  if (unlocked.library) {
-    lib.classList.remove("hidden");
-    booksDiv.innerHTML = inventory.books.length > 0 ? inventory.books.join("<br>") : "Keine Bücher gesammelt.";
+// Portalraum laden
+function loadPortalraum() {
+  gameContainer.innerHTML = "";
+  gameContainer.className = "portalraum";
+
+  const portal = document.createElement("div");
+  portal.className = "portal";
+  portal.onclick = () => {
+    if (currentBackground === "grey") loadKapitel1();
+    if (currentBackground === "lilac") loadKristallhöhle();
+  };
+
+  const stones = document.createElement("div");
+  stones.innerHTML = `
+    <img src="assets/stone_grey.png" class="stone" onclick="setStone('grey')">
+    <img src="assets/stone_lilac.png" class="stone" onclick="setStone('lilac')">
+  `;
+
+  gameContainer.appendChild(portal);
+  gameContainer.appendChild(stones);
+
+  // Automatisch den grauen Stein aktivieren
+  setStone("grey");
+
+  // Kristalle nur einmal laden
+  if (!crystalsLoaded) {
+    addCrystals();
+    crystalsLoaded = true;
   }
 }
 
-// Stein setzen
-function setActiveStone(stone) {
-  activeStone = stone;
-  showScene("portalraum"); // Hintergrund + Portal direkt aktualisieren
-}
-
-// -------------------------------
-// Hintergrund setzen
-// -------------------------------
-function setBackground(scene) {
-  scene.className = ""; // alle bisherigen Klassen entfernen
-
-  if (currentScene !== "portalraum") return; // nur Portalraum
-
-  if (activeStone === "lila") {
-    scene.classList.add("bg-lila");
-    addStars(scene, 50); // 50 Sterne
-    addSketches(scene, 5); // 5 Skizzen
-  } else {
-    scene.classList.add("bg-grey");
-    removeStarsAndSketches(scene);
+// Portalstein einsetzen
+function setStone(color) {
+  currentBackground = color;
+  if (color === "grey") {
+    stars = []; // keine Sterne
+    gameContainer.style.background = "radial-gradient(circle, #f3effa, #d4c4ef)";
+  } else if (color === "lilac") {
+    createStars();
+    gameContainer.style.background = "radial-gradient(circle, #27113e, #763fb1)";
   }
 }
 
-// Sterne hinzufügen
-function addStars(container, count) {
-  removeStarsAndSketches(container); // vorherige entfernen
-
-  for (let i = 0; i < count; i++) {
-    const star = document.createElement("div");
-    star.className = "star";
-    star.style.left = Math.random() * 100 + "%";
-    star.style.top = Math.random() * 100 + "%";
-    star.style.width = star.style.height = Math.random() * 3 + 1 + "px";
-    star.style.animationDuration = 2 + Math.random() * 3 + "s";
-    container.appendChild(star);
+// Kristall-Splitter zufällig im Raum verteilen
+function addCrystals() {
+  for (let i = 1; i <= 10; i++) {
+    const crystal = document.createElement("img");
+    crystal.src = `assets/crystal${i}.png`;
+    crystal.className = "crystal";
+    crystal.style.left = Math.random() * window.innerWidth + "px";
+    crystal.style.top = Math.random() * window.innerHeight + "px";
+    crystal.style.width = 20 + Math.random() * 40 + "px";
+    crystal.style.animationDuration = 8 + Math.random() * 5 + "s";
+    gameContainer.appendChild(crystal);
   }
 }
 
-// Skizzen hinzufügen
-function addSketches(container, count) {
-  for (let i = 0; i < count; i++) {
-    const sketch = document.createElement("div");
-    sketch.className = "sketch";
-    sketch.style.left = Math.random() * 90 + "%";
-    sketch.style.top = Math.random() * 80 + "%";
-    sketch.style.transform = `rotate(${Math.random() * 360}deg)`;
-    container.appendChild(sketch);
-  }
+// Kapitel 1
+function loadKapitel1() {
+  gameContainer.innerHTML = `
+    <div style="padding: 20px;">
+      <h1>Kapitel 1</h1>
+      <p>Hier beginnt deine Reise...</p>
+      <button onclick="loadPortalraum()">Zurück zum Portalraum</button>
+    </div>
+  `;
 }
 
-// Sterne & Skizzen entfernen
-function removeStarsAndSketches(container) {
-  container.querySelectorAll(".star, .sketch").forEach(el => el.remove());
+// Kristallhöhle
+function loadKristallhöhle() {
+  gameContainer.innerHTML = `
+    <div style="padding: 20px;">
+      <h1>Kristallhöhle</h1>
+      <p>Ein mystischer Raum voller Geheimnisse...</p>
+      <button onclick="loadPortalraum()">Zurück zum Portalraum</button>
+    </div>
+  `;
 }
+
+// Start
+loadPortalraum();
+
+
 
 
 
