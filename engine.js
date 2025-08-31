@@ -1,5 +1,10 @@
+// -------------------------------
+// engine.js
+// -------------------------------
+
+// Startzustand
 let currentScene = "portalraum";
-let activeStone = null;
+let activeStone = "hellgrau"; // Start: hellgrauer Stein sofort aktiv
 let gameData = {};
 let inventory = {
   stones: ["hellgrau", "lila"],
@@ -28,16 +33,20 @@ function showScene(id) {
   let html = `<h2>${data.title}</h2><p>${data.text}</p>`;
 
   // Portalraum = Portal + Steinauswahl
-if (id === "portalraum") {
-  let portalClass = "portal";
-  if (activeStone) {
-    portalClass += " " + activeStone; // hängt die Stein-Klasse an
-  }
-  html += `<div class="${portalClass}" onclick="enterPortal()"></div>`;
-  html += `<p>Wähle einen Stein im Inventar, um das Portal zu aktivieren.</p>`;
-}
+  if (id === "portalraum") {
+    let portalClass = "portal";
+    if (activeStone) {
+      portalClass += " " + activeStone; // Portal bekommt Stein-Farbe
+    }
+    html += `<div class="${portalClass}" onclick="enterPortal()"></div>`;
 
-  // Choices
+    // Inventar-Steine nur sichtbar, wenn freigeschaltet
+    if (unlocked.inventory) {
+      html += `<p>Wähle einen Stein im Inventar, um das Portal zu aktivieren.</p>`;
+    }
+  }
+
+  // Choices (z.B. Rückkehr zum Portalraum)
   if (data.choices) {
     data.choices.forEach(choice => {
       html += `<button onclick="showScene('${choice.target}')">${choice.text}</button>`;
@@ -92,8 +101,10 @@ function updateUI() {
 // Aktiven Stein setzen
 function setActiveStone(stone) {
   activeStone = stone;
-  showScene("portalraum"); // Portal neu zeichnen
+  showScene("portalraum"); // Portal sofort neu färben
 }
+
+
 
 
 
