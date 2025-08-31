@@ -28,10 +28,14 @@ function showScene(id) {
   let html = `<h2>${data.title}</h2><p>${data.text}</p>`;
 
   // Portalraum = Portal + Steinauswahl
-  if (id === "portalraum") {
-    html += `<div class="portal" onclick="enterPortal()"></div>`;
-    html += `<p>Wähle einen Stein im Inventar, um das Portal zu aktivieren.</p>`;
+if (id === "portalraum") {
+  let portalClass = "portal";
+  if (activeStone) {
+    portalClass += " " + activeStone; // hängt die Stein-Klasse an
   }
+  html += `<div class="${portalClass}" onclick="enterPortal()"></div>`;
+  html += `<p>Wähle einen Stein im Inventar, um das Portal zu aktivieren.</p>`;
+}
 
   // Choices
   if (data.choices) {
@@ -90,3 +94,4 @@ function setActiveStone(stone) {
   activeStone = stone;
   alert("Aktiver Stein: " + stone);
 }
+
