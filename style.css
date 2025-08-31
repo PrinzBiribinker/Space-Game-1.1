@@ -81,3 +81,35 @@ body {
   from { box-shadow: 0 0 40px #9867D5, 0 0 80px #b596e3; }
   to { box-shadow: 0 0 80px #d4c4ef, 0 0 120px #f3effa; }
 }
+
+/* Portalraum Hintergrundvarianten */
+.bg-grey {
+  background: linear-gradient(#aaa, #555);
+}
+.bg-lila {
+  background: radial-gradient(circle at top, #27113e, #763fb1);
+  position: relative;
+}
+
+/* Sterne */
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle linear infinite alternate;
+}
+@keyframes twinkle {
+  from { opacity: 0.3; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1.5); }
+}
+
+/* Skizzen (Platzhalter) */
+.sketch {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 4px;
+}
+
