@@ -1,0 +1,27 @@
+{
+  "portalraum": {
+    "id": "portalraum",
+    "title": "Portalraum",
+    "text": "Du stehst in einem geheimnisvollen Raum. Vor dir schimmert ein uraltes Portal. Es scheint durch verschiedene Steine gesteuert zu werden."
+  },
+  "kapitel1": {
+    "id": "kapitel1",
+    "title": "Das erste Kapitel",
+    "text": "Der hellgraue Stein bringt dich in eine neue Welt. Hier beginnt deine Reise...",
+    "choices": [
+      {"text": "Zurück zum Portalraum", "target": "portalraum"}
+    ],
+    "unlock": {
+      "inventory": true,
+      "library": true
+    }
+  },
+  "kristallhoehe": {
+    "id": "kristallhoehe",
+    "title": "Kristallhöhle",
+    "text": "Der blasslilane Stein öffnet eine kleine Kristallhöhle. Es scheint noch nichts zu geschehen...",
+    "choices": [
+      {"text": "Zurück zum Portalraum", "target": "portalraum"}
+    ]
+  }
+}
