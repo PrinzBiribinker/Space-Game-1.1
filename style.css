@@ -65,3 +65,19 @@ body {
 }
 .stone.hellgrau { background: #aaa; }
 .stone.lila { background: #b596e3; }
+
+.portal.hellgrau {
+  background: radial-gradient(circle, #aaa, #4c2775);
+  box-shadow: 0 0 40px #d4c4ef;
+}
+
+.portal.lila {
+  background: radial-gradient(circle, #b596e3, #763fb1, #27113e);
+  box-shadow: 0 0 60px #9867D5, 0 0 100px #b596e3;
+  animation: shimmer 3s infinite alternate;
+}
+
+@keyframes shimmer {
+  from { box-shadow: 0 0 40px #9867D5, 0 0 80px #b596e3; }
+  to { box-shadow: 0 0 80px #d4c4ef, 0 0 120px #f3effa; }
+}
