@@ -92,6 +92,8 @@ function updateUI() {
 // Aktiven Stein setzen
 function setActiveStone(stone) {
   activeStone = stone;
-  alert("Aktiver Stein: " + stone);
+  showScene("portalraum"); // Portal neu zeichnen
 }
+
+
 
