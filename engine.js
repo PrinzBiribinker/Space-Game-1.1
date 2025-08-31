@@ -1,10 +1,10 @@
 // -------------------------------
-// engine.js
+// engine.js (mit dynamischem Hintergrund)
 // -------------------------------
 
 // Startzustand
 let currentScene = "portalraum";
-let activeStone = "hellgrau"; // Start: hellgrauer Stein sofort aktiv
+let activeStone = "hellgrau"; // Start: hellgrauer Stein
 let gameData = {};
 let inventory = {
   stones: ["hellgrau", "lila"],
@@ -30,23 +30,22 @@ function showScene(id) {
   const scene = document.getElementById("scene");
   const data = gameData[id];
 
+  // Hintergrund dynamisch setzen
+  setBackground(scene);
+
   let html = `<h2>${data.title}</h2><p>${data.text}</p>`;
 
-  // Portalraum = Portal + Steinauswahl
+  // Portalraum
   if (id === "portalraum") {
     let portalClass = "portal";
-    if (activeStone) {
-      portalClass += " " + activeStone; // Portal bekommt Stein-Farbe
-    }
+    if (activeStone) portalClass += " " + activeStone;
     html += `<div class="${portalClass}" onclick="enterPortal()"></div>`;
-
-    // Inventar-Steine nur sichtbar, wenn freigeschaltet
     if (unlocked.inventory) {
       html += `<p>Wähle einen Stein im Inventar, um das Portal zu aktivieren.</p>`;
     }
   }
 
-  // Choices (z.B. Rückkehr zum Portalraum)
+  // Choices
   if (data.choices) {
     data.choices.forEach(choice => {
       html += `<button onclick="showScene('${choice.target}')">${choice.text}</button>`;
@@ -69,16 +68,12 @@ function enterPortal() {
     alert("Wähle zuerst einen Stein aus dem Inventar!");
     return;
   }
-  if (activeStone === "hellgrau") {
-    showScene("kapitel1");
-  } else if (activeStone === "lila") {
-    showScene("kristallhoehe");
-  }
+  if (activeStone === "hellgrau") showScene("kapitel1");
+  else if (activeStone === "lila") showScene("kristallhoehe");
 }
 
 // UI updaten
 function updateUI() {
-  // Inventar
   const inv = document.getElementById("inventory");
   const itemsDiv = document.getElementById("items");
   if (unlocked.inventory) {
@@ -89,7 +84,6 @@ function updateUI() {
     });
   }
 
-  // Bibliothek
   const lib = document.getElementById("library");
   const booksDiv = document.getElementById("books");
   if (unlocked.library) {
@@ -98,10 +92,60 @@ function updateUI() {
   }
 }
 
-// Aktiven Stein setzen
+// Stein setzen
 function setActiveStone(stone) {
   activeStone = stone;
-  showScene("portalraum"); // Portal sofort neu färben
+  showScene("portalraum"); // Hintergrund + Portal direkt aktualisieren
+}
+
+// -------------------------------
+// Hintergrund setzen
+// -------------------------------
+function setBackground(scene) {
+  scene.className = ""; // alle bisherigen Klassen entfernen
+
+  if (currentScene !== "portalraum") return; // nur Portalraum
+
+  if (activeStone === "lila") {
+    scene.classList.add("bg-lila");
+    addStars(scene, 50); // 50 Sterne
+    addSketches(scene, 5); // 5 Skizzen
+  } else {
+    scene.classList.add("bg-grey");
+    removeStarsAndSketches(scene);
+  }
+}
+
+// Sterne hinzufügen
+function addStars(container, count) {
+  removeStarsAndSketches(container); // vorherige entfernen
+
+  for (let i = 0; i < count; i++) {
+    const star = document.createElement("div");
+    star.className = "star";
+    star.style.left = Math.random() * 100 + "%";
+    star.style.top = Math.random() * 100 + "%";
+    star.style.width = star.style.height = Math.random() * 3 + 1 + "px";
+    star.style.animationDuration = 2 + Math.random() * 3 + "s";
+    container.appendChild(star);
+  }
+}
+
+// Skizzen hinzufügen
+function addSketches(container, count) {
+  for (let i = 0; i < count; i++) {
+    const sketch = document.createElement("div");
+    sketch.className = "sketch";
+    sketch.style.left = Math.random() * 90 + "%";
+    sketch.style.top = Math.random() * 80 + "%";
+    sketch.style.transform = `rotate(${Math.random() * 360}deg)`;
+    container.appendChild(sketch);
+  }
+}
+
+// Sterne & Skizzen entfernen
+function removeStarsAndSketches(container) {
+  container.querySelectorAll(".star, .sketch").forEach(el => el.remove());
 }
 
 
